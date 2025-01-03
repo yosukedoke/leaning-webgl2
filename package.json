@@ -1,0 +1,22 @@
+{
+  "name": "leaning-webgl2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "engines": {
+    "pnpm": "9.15.2",
+    "npm": "use pnpm",
+    "yarn": "use pnpm"
+  },
+  "scripts": {
+    "common": "pnpm -F \"common\"",
+    "chap1": "pnpm -F \"chap1\""
+  },
+  "packageManager": "pnpm@9.15.2",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "vite": "6.0.7"
+  }
+}
