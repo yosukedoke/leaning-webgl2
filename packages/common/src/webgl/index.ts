@@ -8,28 +8,37 @@ import "../math/mat4";
 
 import getWebgl from "./getWebgl";
 import { Uniform } from "./Uniform";
-import { create as createProgram } from "./Program";
+import { create as createProgram, build as buildProgram } from "./Program";
 import { Shader } from "./Shader";
 import { Attribute } from "./Attribute";
-import { build, RenderContext } from "./RenderContext";
+import {
+  buildUniforms,
+  buildRenderBuffers,
+  RenderContext,
+} from "./RenderContext";
 export { getWebgl };
 
 function useWebGL(gl: WebGL2RenderingContext) {
-  const _vao: WebGLVertexArrayObject = gl.createVertexArray();
-  const _program = createProgram();
+  const vao: WebGLVertexArrayObject = gl.createVertexArray();
+  const program = createProgram();
 
   return {
     addShader(...shaders: Shader[]) {
-      _program.addShaders(...shaders);
+      program.addShaders(...shaders);
     },
     build(
       mesh: Mesh,
       attributes: Attributes<Attribute>,
       uniforms: Uniforms<Uniform>
     ): RenderContext {
-      return build(gl, _vao, mesh, _program, attributes, uniforms);
+      const program_ = buildProgram(gl, program);
+      return {
+        count: mesh.indices.length,
+        uniforms: buildUniforms(gl, program_, uniforms),
+        buffers: buildRenderBuffers(gl, vao, program_, mesh, attributes),
+      };
     },
-    render({ buffers, indicesLength, uniforms }: RenderContext) {
+    render({ count, uniforms, buffers }: RenderContext) {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
@@ -63,9 +72,9 @@ function useWebGL(gl: WebGL2RenderingContext) {
       gl.uniformMatrix4fv(uniforms.uLightDiffuse, false, lightDiffuseColor);
       gl.uniformMatrix4fv(uniforms.uLightDirection, false, lightDirection);
 
-      useVao(gl, _vao, () => {
+      useVao(gl, vao, () => {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
-        gl.drawElements(gl.TRIANGLES, indicesLength, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, 0);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
       });
     },
