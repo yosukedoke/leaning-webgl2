@@ -1,25 +1,23 @@
 import { Mesh } from "../data/Mesh";
-import { Attributes, Uniforms } from "../data/types";
 
 import aspectRacio from "../math/aspectRacio";
 import radian from "../math/radian";
 
-import { create as createUniform, Uniform } from "./Uniform";
+import { create as createUniform, build as buildUniform } from "./Uniform";
 import { create as createProgram, build as buildProgram } from "./Program";
 import { Shader } from "./Shader";
-import { Attribute } from "./Attribute";
-
 import {
-  buildUniforms,
-  buildRenderBuffers,
-  RenderContext,
-} from "./RenderContext";
+  create as createAttribute,
+  build as buildAttribute,
+} from "./Attribute";
+
+import { buildRenderBuffers, RenderContext } from "./RenderContext";
 
 import useBindBuffer from "./useBindBuffer";
 import useVao from "./useVao";
 
-import { Matrix4 } from "./types";
 import "../math/mat4";
+import { WegGLMatrix4, WegGLVector3 } from "./types";
 
 import getWebgl from "./getWebgl";
 export { getWebgl };
@@ -32,14 +30,14 @@ export function createCamera(rotate: number): Camera {
   return { matrix: mat4.create(), rotate };
 }
 
+export type Color = [r: number, g: number, b: number];
+export type Vector3 = [x: number, y: number, x: number];
+
 type Light = {
-  diffuseColor: [r: number, g: number, b: number];
+  diffuseColor: Color;
   direction: [x: number, y: number, x: number];
 };
-export function createLignt(
-  diffuseColor: [r: number, g: number, b: number],
-  direction: [x: number, y: number, x: number]
-): Light {
+export function createLignt(diffuseColor: Color, direction: Vector3): Light {
   return { diffuseColor, direction };
 }
 
@@ -47,33 +45,68 @@ function useWebGL(gl: WebGL2RenderingContext) {
   const vao: WebGLVertexArrayObject = gl.createVertexArray();
   const program = createProgram();
 
-  const sphereColor = [0.5, 0.8, 0.1];
-  const modelViewMatrix = mat4.create(),
-    normalMatrix = mat4.create();
+  const vertexPosition = createAttribute("aVertexPosition", WegGLVector3);
+  const vertexNormal = createAttribute("aVertexNormal", WegGLVector3);
+
+  const materialDiffuse = createUniform("uMaterialDiffuse", WegGLVector3);
+
+  const lightDiffuse = createUniform("uLightDiffuse", WegGLVector3);
+  const lightDirection = createUniform("uLightDirection", WegGLVector3);
+
+  const projectionMatrix = createUniform("uProjectionMatrix", WegGLMatrix4);
+  const modelViewMatrix = createUniform("uModelViewMatrix", WegGLMatrix4);
+  const normalMatrix = createUniform("uNormalMatrix", WegGLMatrix4);
+
+  let _color: Color | undefined;
+  let _light: Light | undefined;
 
   return {
     addShader(...shaders: Shader[]) {
       program.addShaders(...shaders);
     },
-    build(
-      mesh: Mesh,
-      attributes: Attributes<Attribute>,
-      uniforms: Uniforms<Uniform>
-    ): RenderContext {
+    attachColor(color: Color) {
+      _color = color;
+    },
+    attachLight(light: Light) {
+      _light = light;
+    },
+    context(mesh: Mesh): RenderContext {
       const program_ = buildProgram(gl, program);
+
       return {
-        count: mesh.indices.length,
-        uniforms: buildUniforms(gl, program_, uniforms),
-        buffers: buildRenderBuffers(gl, vao, program_, mesh, attributes),
+        ...buildRenderBuffers(
+          gl,
+          vao,
+          mesh,
+          buildAttribute(gl, program_, vertexPosition),
+          buildAttribute(gl, program_, vertexNormal)
+        ),
+        uMaterialDiffuse: buildUniform(gl, program_, materialDiffuse),
+        uLightDiffuse: buildUniform(gl, program_, lightDiffuse),
+        uLightDirection: buildUniform(gl, program_, lightDirection),
+        uProjectionMatrix: buildUniform(gl, program_, projectionMatrix),
+        uModelViewMatrix: buildUniform(gl, program_, modelViewMatrix),
+        uNormalMatrix: buildUniform(gl, program_, normalMatrix),
       };
     },
     render(
       camera: Camera,
-      light: Light,
-      { count, uniforms, buffers }: RenderContext
+      { count, indices, vertices: _, normals: __, ...uniforms }: RenderContext
     ) {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+      if (_color) {
+        gl.uniformMatrix4fv(uniforms.uMaterialDiffuse, false, _color);
+      }
+
+      if (_light) {
+        gl.uniformMatrix4fv(uniforms.uLightDiffuse, false, _light.diffuseColor);
+        gl.uniformMatrix4fv(uniforms.uLightDirection, false, _light.direction);
+      }
+
+      const modelViewMatrix = mat4.create(),
+        normalMatrix = mat4.create();
 
       // We will discuss these operations in later chapters
       mat4.perspective(
@@ -92,15 +125,10 @@ function useWebGL(gl: WebGL2RenderingContext) {
 
       gl.uniformMatrix4fv(uniforms.uNormalMatrix, false, normalMatrix);
       gl.uniformMatrix4fv(uniforms.uProjectionMatrix, false, camera.matrix);
-
       gl.uniformMatrix4fv(uniforms.uModelViewMatrix, false, modelViewMatrix);
-      gl.uniformMatrix4fv(uniforms.uMaterialDiffuse, false, sphereColor);
-
-      gl.uniformMatrix4fv(uniforms.uLightDiffuse, false, light.diffuseColor);
-      gl.uniformMatrix4fv(uniforms.uLightDirection, false, light.direction);
 
       useVao(gl, vao, () => {
-        useBindBuffer(gl, buffers.indices, gl.ELEMENT_ARRAY_BUFFER, () => {
+        useBindBuffer(gl, indices, gl.ELEMENT_ARRAY_BUFFER, () => {
           gl.drawElements(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, 0);
         });
       });

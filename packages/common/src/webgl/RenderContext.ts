@@ -1,8 +1,4 @@
 import { Mesh } from "../data/Mesh";
-import { Attributes, Uniforms } from "../data/types";
-import { build as buildAttribute, Attribute } from "./Attribute";
-import { build as buildProgram, Program } from "./Program";
-import { build as buildUniform, Uniform } from "./Uniform";
 import useVao from "./useVao";
 import useBindBuffer from "./useBindBuffer";
 
@@ -38,22 +34,16 @@ function buildElementArrayBuffer(
 export function buildRenderBuffers(
   gl: WebGL2RenderingContext,
   vao: WebGLVertexArrayObject,
-  program: WebGLProgram,
   mesh: Mesh,
-  attributes: Attributes<Attribute>
+  aVertexPosition: GLuint,
+  aVertexNormal: GLuint
 ): RenderBuffers {
-  const aVertexPosition = buildAttribute(
-    gl,
-    program,
-    attributes.aVertexPosition
-  );
-  const aVertexNormal = buildAttribute(gl, program, attributes.aVertexNormal);
-
   return useVao(gl, vao, () => {
     const vertices = buildArrayBuffer(gl, mesh.vertices, aVertexPosition);
     const normals = buildArrayBuffer(gl, mesh.getNormals(), aVertexNormal);
     const indices = buildElementArrayBuffer(gl, mesh.indices);
-    return { vertices, indices, normals };
+    const count = mesh.indices.length;
+    return { vertices, indices, normals, count };
   });
 }
 
@@ -61,21 +51,25 @@ export type RenderBuffers = {
   vertices: WebGLBuffer;
   indices: WebGLBuffer;
   normals: WebGLBuffer;
-};
-
-export function buildUniforms(
-  gl: WebGL2RenderingContext,
-  program: WebGLProgram,
-  uniforms: Uniforms<Uniform>
-): Uniforms<WebGLUniformLocation> {
-  return Object.entries(uniforms).reduce((acc, [name, uniform]) => {
-    acc[name] = buildUniform(gl, program, uniform);
-    return acc;
-  }, {} as Uniforms<WebGLUniformLocation>);
-}
-
-export type RenderContext = {
-  buffers: RenderBuffers;
   count: number;
-  uniforms: Uniforms<WebGLUniformLocation>;
 };
+
+export type MaterialUniforms = {
+  uMaterialDiffuse: WebGLUniformLocation;
+};
+
+export type LightUniforms = {
+  uLightDiffuse: WebGLUniformLocation;
+  uLightDirection: WebGLUniformLocation;
+};
+
+export type ProjectionUniforms = {
+  uNormalMatrix: WebGLUniformLocation;
+  uModelViewMatrix: WebGLUniformLocation;
+  uProjectionMatrix: WebGLUniformLocation;
+};
+
+export type RenderContext = ProjectionUniforms &
+  MaterialUniforms &
+  LightUniforms &
+  RenderBuffers;

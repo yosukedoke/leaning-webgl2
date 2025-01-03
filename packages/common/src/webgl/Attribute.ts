@@ -1,11 +1,14 @@
-import { Matrix4, Vector3 } from "./types";
+import { WegGLMatrix4, WegGLVector3 } from "./types";
 
 export type Attribute = {
   name: string;
-  type: Matrix4 | Vector3;
+  type: WegGLMatrix4 | WegGLVector3;
 };
 
-export function create(name: string, type: Matrix4 | Vector3): Attribute {
+export function create(
+  name: string,
+  type: WegGLMatrix4 | WegGLVector3
+): Attribute {
   return {
     name,
     type,

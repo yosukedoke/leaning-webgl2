@@ -1,5 +1,5 @@
-export const Vector3 = "vec3";
-export const Matrix4 = "matrix4";
+export const WegGLVector3 = "vec3";
+export const WegGLMatrix4 = "matrix4";
 
-export type Vector3 = typeof Vector3;
-export type Matrix4 = typeof Matrix4;
+export type WegGLVector3 = typeof WegGLVector3;
+export type WegGLMatrix4 = typeof WegGLMatrix4;

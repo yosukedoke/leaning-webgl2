@@ -1,8 +1,7 @@
-console.log("common/src/index.js");
 import Mesh from "./data/Mesh";
 import getElement from "./dom/getElement";
 import getScriptText from "./dom/getScriptText";
-import useWebGL, { createCamera, createLignt, getWebgl } from "./webgl";
+import useWebGL, { Color, createCamera, createLignt, getWebgl } from "./webgl";
 
 import vertices from "./data/vertices";
 import indices from "./data/indices";
@@ -11,9 +10,6 @@ import {
   VERTEX_SHADER,
   FRAGMENT_SHADER,
 } from "./webgl/Shader";
-import { create as createAttribute } from "./webgl/Attribute";
-import { create as createUniform } from "./webgl/Uniform";
-import { Matrix4, Vector3 } from "./webgl/types";
 
 const mesh = Mesh.create(vertices, indices);
 
@@ -36,27 +32,18 @@ function createApp() {
     )
   );
 
-  const attributes = {
-    aVertexPosition: createAttribute("aVertexPosition", Vector3),
-    aVertexNormal: createAttribute("aVertexNormal", Vector3),
-  };
-
-  const uniforms = {
-    uProjectionMatrix: createUniform("uProjectionMatrix", Matrix4),
-    uModelViewMatrix: createUniform("uModelViewMatrix", Matrix4),
-    uNormalMatrix: createUniform("uNormalMatrix", Matrix4),
-    uMaterialDiffuse: createUniform("uMaterialDiffuse", Vector3),
-    uLightDiffuse: createUniform("uLightDiffuse", Vector3),
-    uLightDirection: createUniform("uLightDirection", Vector3),
-  };
-
   const camera = createCamera(45);
   const light = createLignt([0.1, 0.1, 1], [0, 1, 1]);
 
-  const context = webgl.build(mesh, attributes, uniforms);
+  const color: Color = [0.5, 0.8, 0.1];
+
+  webgl.attachColor(color);
+  webgl.attachLight(light);
+
+  const context = webgl.context(mesh);
 
   return () => {
-    webgl.render(camera, light, context);
+    webgl.render(camera, context);
   };
 }
 
