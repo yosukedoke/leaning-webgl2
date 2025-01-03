@@ -1,26 +1,55 @@
 import { Mesh } from "../data/Mesh";
 import { Attributes, Uniforms } from "../data/types";
+
 import aspectRacio from "../math/aspectRacio";
 import radian from "../math/radian";
-import useVao from "./useVao";
 
-import "../math/mat4";
-
-import getWebgl from "./getWebgl";
-import { Uniform } from "./Uniform";
+import { create as createUniform, Uniform } from "./Uniform";
 import { create as createProgram, build as buildProgram } from "./Program";
 import { Shader } from "./Shader";
 import { Attribute } from "./Attribute";
+
 import {
   buildUniforms,
   buildRenderBuffers,
   RenderContext,
 } from "./RenderContext";
+
+import useBindBuffer from "./useBindBuffer";
+import useVao from "./useVao";
+
+import { Matrix4 } from "./types";
+import "../math/mat4";
+
+import getWebgl from "./getWebgl";
 export { getWebgl };
+
+type Camera = {
+  matrix: number[];
+  rotate: number;
+};
+export function createCamera(rotate: number): Camera {
+  return { matrix: mat4.create(), rotate };
+}
+
+type Light = {
+  diffuseColor: [r: number, g: number, b: number];
+  direction: [x: number, y: number, x: number];
+};
+export function createLignt(
+  diffuseColor: [r: number, g: number, b: number],
+  direction: [x: number, y: number, x: number]
+): Light {
+  return { diffuseColor, direction };
+}
 
 function useWebGL(gl: WebGL2RenderingContext) {
   const vao: WebGLVertexArrayObject = gl.createVertexArray();
   const program = createProgram();
+
+  const sphereColor = [0.5, 0.8, 0.1];
+  const modelViewMatrix = mat4.create(),
+    normalMatrix = mat4.create();
 
   return {
     addShader(...shaders: Shader[]) {
@@ -38,18 +67,18 @@ function useWebGL(gl: WebGL2RenderingContext) {
         buffers: buildRenderBuffers(gl, vao, program_, mesh, attributes),
       };
     },
-    render({ count, uniforms, buffers }: RenderContext) {
+    render(
+      camera: Camera,
+      light: Light,
+      { count, uniforms, buffers }: RenderContext
+    ) {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-      const modelViewMatrix = mat4.create(),
-        projectionMatrix = mat4.create(),
-        normalMatrix = mat4.create();
-
       // We will discuss these operations in later chapters
       mat4.perspective(
-        projectionMatrix,
-        radian(45),
+        camera.matrix,
+        radian(camera.rotate),
         aspectRacio(gl.canvas),
         0.1,
         10000
@@ -62,20 +91,18 @@ function useWebGL(gl: WebGL2RenderingContext) {
       mat4.transpose(normalMatrix, normalMatrix);
 
       gl.uniformMatrix4fv(uniforms.uNormalMatrix, false, normalMatrix);
-      gl.uniformMatrix4fv(uniforms.uProjectionMatrix, false, projectionMatrix);
-      gl.uniformMatrix4fv(uniforms.uModelViewMatrix, false, modelViewMatrix);
+      gl.uniformMatrix4fv(uniforms.uProjectionMatrix, false, camera.matrix);
 
-      const lightDiffuseColor = [0.1, 0.1, 1];
-      const lightDirection = [0, 1, 1];
-      const sphereColor = [0.5, 0.8, 0.1];
+      gl.uniformMatrix4fv(uniforms.uModelViewMatrix, false, modelViewMatrix);
       gl.uniformMatrix4fv(uniforms.uMaterialDiffuse, false, sphereColor);
-      gl.uniformMatrix4fv(uniforms.uLightDiffuse, false, lightDiffuseColor);
-      gl.uniformMatrix4fv(uniforms.uLightDirection, false, lightDirection);
+
+      gl.uniformMatrix4fv(uniforms.uLightDiffuse, false, light.diffuseColor);
+      gl.uniformMatrix4fv(uniforms.uLightDirection, false, light.direction);
 
       useVao(gl, vao, () => {
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
-        gl.drawElements(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, 0);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        useBindBuffer(gl, buffers.indices, gl.ELEMENT_ARRAY_BUFFER, () => {
+          gl.drawElements(gl.TRIANGLES, count, gl.UNSIGNED_SHORT, 0);
+        });
       });
     },
   };

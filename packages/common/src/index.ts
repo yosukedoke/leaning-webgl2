@@ -1,9 +1,8 @@
 console.log("common/src/index.js");
 import Mesh from "./data/Mesh";
-import { Attributes, Uniforms } from "./data/types";
 import getElement from "./dom/getElement";
 import getScriptText from "./dom/getScriptText";
-import useWebGL, { getWebgl } from "./webgl";
+import useWebGL, { createCamera, createLignt, getWebgl } from "./webgl";
 
 import vertices from "./data/vertices";
 import indices from "./data/indices";
@@ -17,6 +16,10 @@ import { create as createUniform } from "./webgl/Uniform";
 import { Matrix4, Vector3 } from "./webgl/types";
 
 const mesh = Mesh.create(vertices, indices);
+
+// Mesh == vertices + indices
+// Material = color, texture, shaders
+// Model = Mesh + Material + Transform
 
 function createApp() {
   const gl = getWebgl(getElement<HTMLCanvasElement>("#webgl-canvas"), "webgl2");
@@ -47,10 +50,13 @@ function createApp() {
     uLightDirection: createUniform("uLightDirection", Vector3),
   };
 
+  const camera = createCamera(45);
+  const light = createLignt([0.1, 0.1, 1], [0, 1, 1]);
+
   const context = webgl.build(mesh, attributes, uniforms);
 
   return () => {
-    webgl.render(context);
+    webgl.render(camera, light, context);
   };
 }
 
