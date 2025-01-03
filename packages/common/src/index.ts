@@ -33,7 +33,7 @@ function createApp() {
   );
 
   const camera = createCamera(45);
-  const light = createLignt([0.1, 0.1, 1], [0, 1, 1]);
+  const light = createLignt([1, 1, 1], [0, -1, -1]);
 
   const color: Color = [0.5, 0.8, 0.1];
 

@@ -97,12 +97,12 @@ function useWebGL(gl: WebGL2RenderingContext) {
       gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
       if (_color) {
-        gl.uniformMatrix4fv(uniforms.uMaterialDiffuse, false, _color);
+        gl.uniform3fv(uniforms.uMaterialDiffuse, _color);
       }
 
       if (_light) {
-        gl.uniformMatrix4fv(uniforms.uLightDiffuse, false, _light.diffuseColor);
-        gl.uniformMatrix4fv(uniforms.uLightDirection, false, _light.direction);
+        gl.uniform3fv(uniforms.uLightDiffuse, _light.diffuseColor);
+        gl.uniform3fv(uniforms.uLightDirection, _light.direction);
       }
 
       const modelViewMatrix = mat4.create(),
