@@ -1,0 +1,20 @@
+body,
+html {
+  margin: 0;
+  padding: 0;
+}
+body {
+  background-color: #111;
+  font-size: 16px;
+}
+h1 {
+  color: #fff;
+  font-size: 14px;
+  line-height: 1rem;
+  margin: 0;
+  padding: 8px 16px;
+}
+
+#webgl-canvas {
+  border: 2px solid #fff3;
+}
