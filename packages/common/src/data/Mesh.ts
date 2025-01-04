@@ -6,7 +6,7 @@ export type Mesh = {
   getNormals: () => number[];
 };
 
-function create(vertices: number[], indices: number[]): Mesh {
+export function create(vertices: number[], indices: number[]): Mesh {
   return {
     vertices,
     indices,
@@ -15,8 +15,3 @@ function create(vertices: number[], indices: number[]): Mesh {
     },
   };
 }
-
-const Mesh = {
-  create,
-};
-export default Mesh;

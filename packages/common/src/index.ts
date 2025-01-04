@@ -1,17 +1,18 @@
-import Mesh from "./data/Mesh";
+import { create as createMesh } from "./data/Mesh";
 import getElement from "./dom/getElement";
 import getScriptText from "./dom/getScriptText";
 import useWebGL, { Color, createCamera, createLignt, getWebgl } from "./webgl";
 
 import vertices from "./data/vertices";
 import indices from "./data/indices";
+
 import {
   create as createShader,
   VERTEX_SHADER,
   FRAGMENT_SHADER,
 } from "./webgl/Shader";
 
-const mesh = Mesh.create(vertices, indices);
+const mesh = createMesh(vertices, indices);
 
 // Mesh == vertices + indices
 // Material = color, texture, shaders
