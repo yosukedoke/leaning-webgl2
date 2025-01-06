@@ -1,11 +1,14 @@
-import { Matrix4, Vector3 } from "./types";
+import { WegGLVector3, WegGLMatrix4 } from "./types";
 
 export type Uniform = {
   name: string;
-  type: Matrix4 | Vector3;
+  type: WegGLVector3 | WegGLMatrix4;
 };
 
-export function create(name: string, type: Matrix4 | Vector3): Uniform {
+export function create(
+  name: string,
+  type: WegGLVector3 | WegGLMatrix4
+): Uniform {
   return {
     name,
     type,
