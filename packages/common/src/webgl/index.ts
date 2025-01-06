@@ -19,8 +19,8 @@ import useVao from "./useVao";
 import "../math/mat4";
 import { WegGLMatrix4, WegGLVector3 } from "./types";
 
-import getWebgl from "./getWebgl";
-export { getWebgl };
+import getWebglContext, { WEBGL2 } from "./getWebglContext";
+export { getWebglContext, WEBGL2 };
 
 type Camera = {
   matrix: number[];

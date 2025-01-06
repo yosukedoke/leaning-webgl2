@@ -1,7 +1,13 @@
 import { create as createMesh } from "./data/Mesh";
 import getElement from "./dom/getElement";
 import getScriptText from "./dom/getScriptText";
-import useWebGL, { Color, createCamera, createLignt, getWebgl } from "./webgl";
+import useWebGL, {
+  Color,
+  createCamera,
+  createLignt,
+  getWebglContext,
+  WEBGL2,
+} from "./webgl";
 
 import vertices from "./data/vertices";
 import indices from "./data/indices";
@@ -19,7 +25,8 @@ const mesh = createMesh(vertices, indices);
 // Model = Mesh + Material + Transform
 
 function createApp() {
-  const gl = getWebgl(getElement<HTMLCanvasElement>("#webgl-canvas"), "webgl2");
+  const canvas = getElement<HTMLCanvasElement>("#canvas");
+  const gl = getWebglContext(canvas, WEBGL2);
   const webgl = useWebGL(gl);
 
   webgl.addShader(
