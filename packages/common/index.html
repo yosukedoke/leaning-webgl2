@@ -3,70 +3,71 @@
   <head>
     <meta charset="UTF-8" />
     <title>Hello</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=0"
+    />
     <link href="/src/index.css" rel="stylesheet" />
   </head>
-  <body>
-    <h1>Common</h1>
-    <div id="app">
-      <canvas id="webgl-canvas" width="800" height="800" />
+  <body id="app" class="vStack">
+    <h1 class="title">Common</h1>
+    <canvas id="canvas" class="webgl-canvas"></canvas>
 
-      <!-- vertex Shader -->
-      <script id="vertex-shader" type="x-shader/x-vertex">
-        #version 300 es
-        precision mediump float;
+    <!-- vertex Shader -->
+    <script id="vertex-shader" type="x-shader/x-vertex">
+      #version 300 es
+      precision mediump float;
 
-        // Supplied vertex position attribute
-        in vec3 aVertexPosition;
-        in vec3 aVertexNormal;
+      // Supplied vertex position attribute
+      in vec3 aVertexPosition;
+      in vec3 aVertexNormal;
 
-        uniform mat4 uNormalMatrix;
-        uniform mat4 uProjectionMatrix;
-        uniform mat4 uModelViewMatrix;
+      uniform mat4 uNormalMatrix;
+      uniform mat4 uProjectionMatrix;
+      uniform mat4 uModelViewMatrix;
 
-        uniform vec3 uMaterialDiffuse;
-        uniform vec3 uLightDiffuse;
-        uniform vec3 uLightDirection;
+      uniform vec3 uMaterialDiffuse;
+      uniform vec3 uLightDiffuse;
+      uniform vec3 uLightDirection;
 
-        out vec4 vVertexColor;
+      out vec4 vVertexColor;
 
-        void main(void) {
-          // Calculate the normal vector
-          vec3 N = normalize(vec3(uNormalMatrix * vec4(aVertexNormal, 1.0)));
+      void main(void) {
+        // Calculate the normal vector
+        vec3 N = normalize(vec3(uNormalMatrix * vec4(aVertexNormal, 1.0)));
 
-          // Normalized light direction
-          vec3 L = normalize(uLightDirection);
+        // Normalized light direction
+        vec3 L = normalize(uLightDirection);
 
-          // Dot product of the normal product and negative light direction vector
-          float lambertTerm = dot(N, -L);
+        // Dot product of the normal product and negative light direction vector
+        float lambertTerm = dot(N, -L);
 
-          // Calculating the diffuse color based on the Lambertian reflection model
-          vec3 Id = uMaterialDiffuse * uLightDiffuse * lambertTerm;
+        // Calculating the diffuse color based on the Lambertian reflection model
+        vec3 Id = uMaterialDiffuse * uLightDiffuse * lambertTerm;
 
-          // Set the varying to be used inside of the fragment shader
-          vVertexColor = vec4(Id, 1.0);
+        // Set the varying to be used inside of the fragment shader
+        vVertexColor = vec4(Id, 1.0);
 
-          // Setting the vertex position
-          gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aVertexPosition, 1.0);
-        }
-      </script>
+        // Setting the vertex position
+        gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aVertexPosition, 1.0);
+      }
+    </script>
 
-      <!-- fragment Shader -->
-      <script id="fragment-shader" type="x-shader/x-fragment">
-        #version 300 es
-        precision mediump float;
+    <!-- fragment Shader -->
+    <script id="fragment-shader" type="x-shader/x-fragment">
+      #version 300 es
+      precision mediump float;
 
-        in vec4 vVertexColor;
+      in vec4 vVertexColor;
 
-        // Color that is the result of this shader
-        out vec4 fragColor;
+      // Color that is the result of this shader
+      out vec4 fragColor;
 
-        void main(void) {
-          // Set the result as red
-          fragColor = vVertexColor;
-        }
-      </script>
-    </div>
-
+      void main(void) {
+        // Set the result as red
+        fragColor = vVertexColor;
+      }
+    </script>
     <script type="module" src="/src/index.ts"></script>
   </body>
 </html>

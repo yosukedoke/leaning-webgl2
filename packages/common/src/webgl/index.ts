@@ -41,6 +41,11 @@ export function createLignt(diffuseColor: Color, direction: Vector3): Light {
   return { diffuseColor, direction };
 }
 
+export type Rect = {
+  width: number;
+  height: number;
+};
+
 function useWebGL(gl: WebGL2RenderingContext) {
   const vao: WebGLVertexArrayObject = gl.createVertexArray();
   const program = createProgram();
@@ -59,6 +64,7 @@ function useWebGL(gl: WebGL2RenderingContext) {
 
   let _color: Color | undefined;
   let _light: Light | undefined;
+  const screen: Rect = { width: 0, height: 0 };
 
   return {
     addShader(...shaders: Shader[]) {
@@ -89,12 +95,18 @@ function useWebGL(gl: WebGL2RenderingContext) {
         uNormalMatrix: buildUniform(gl, program_, normalMatrix),
       };
     },
+    resize(rect: Rect) {
+      screen.width = rect.width;
+      screen.height = rect.height;
+      gl.canvas.width = screen.width;
+      gl.canvas.height = screen.height;
+    },
     render(
       camera: Camera,
       { count, indices, vertices: _, normals: __, ...uniforms }: RenderContext
     ) {
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+      gl.viewport(0, 0, screen.width, screen.height);
 
       if (_color) {
         gl.uniform3fv(uniforms.uMaterialDiffuse, _color);
@@ -112,7 +124,7 @@ function useWebGL(gl: WebGL2RenderingContext) {
       mat4.perspective(
         camera.matrix,
         radian(camera.rotate),
-        aspectRacio(gl.canvas),
+        aspectRacio(screen),
         0.1,
         10000
       );

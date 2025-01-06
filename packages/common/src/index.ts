@@ -50,11 +50,34 @@ function createApp() {
 
   const context = webgl.context(mesh);
 
-  return () => {
-    webgl.render(camera, context);
+  return {
+    resize() {
+      const width = window.innerWidth;
+      const height = window.innerHeight - 32;
+      webgl.resize({ width, height });
+      return this;
+    },
+    render() {
+      webgl.render(camera, context);
+      return this;
+    },
+    init() {
+      this.resize();
+      return this;
+    },
   };
 }
 
-const render = createApp();
+const app = createApp();
 
-render();
+window.onresize = () => {
+  app.resize();
+};
+
+const loop = () => {
+  app.render();
+  requestAnimationFrame(loop);
+};
+
+app.init().render();
+loop();

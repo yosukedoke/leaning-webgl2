@@ -7,14 +7,23 @@ body {
   background-color: #111;
   font-size: 16px;
 }
-h1 {
+
+.vStack {
+  display: flex;
+  flex-direction: column;
+}
+.title {
   color: #fff;
   font-size: 14px;
   line-height: 1rem;
   margin: 0;
   padding: 8px 16px;
 }
+#canvas {
+  width: 100vw;
+  flex-grow: 1;
+}
 
-#webgl-canvas {
-  border: 2px solid #fff3;
+#app {
+  height: 100svh;
 }
