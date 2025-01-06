@@ -18,5 +18,8 @@
   "license": "ISC",
   "devDependencies": {
     "vite": "6.0.7"
+  },
+  "dependencies": {
+    "gl-matrix": "4.0.0-beta.2"
   }
 }

@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      gl-matrix:
+        specifier: 4.0.0-beta.2
+        version: 4.0.0-beta.2
     devDependencies:
       vite:
         specifier: 6.0.7
@@ -15,10 +19,10 @@ importers:
   packages/chap1: {}
 
   packages/common:
-    devDependencies:
-      vite:
-        specifier: 6.0.7
-        version: 6.0.7
+    dependencies:
+      gl-matrix:
+        specifier: 4.0.0-beta.2
+        version: 4.0.0-beta.2
 
 packages:
 
@@ -280,6 +284,9 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
+  gl-matrix@4.0.0-beta.2:
+    resolution: {integrity: sha512-OF6IkQpMkF8p2CZF9EtzYZPlPaW3M41KMsgZGlTKmMv/nWaP6GMJi9V5tI+oPn8FG0io85Q5ZtKpCXP4u6YmDA==}
+
   nanoid@3.3.8:
     resolution: {integrity: sha512-WNLf5Sd8oZxOm+TzppcYk8gVOgP+l58xNy58D0nbUnOxOWRWvlcCV4kUF7ltmI6PsrLl/BgKEyS4mqsGChFN0w==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
@@ -507,6 +514,8 @@ snapshots:
 
   fsevents@2.3.3:
     optional: true
+
+  gl-matrix@4.0.0-beta.2: {}
 
   nanoid@3.3.8: {}
 

@@ -1,5 +1,6 @@
 import { Mesh } from "../data/Mesh";
 
+import { mat4, Mat4 } from "gl-matrix";
 import aspectRacio from "../math/aspectRacio";
 import radian from "../math/radian";
 
@@ -16,14 +17,13 @@ import { buildRenderBuffers, RenderContext } from "./RenderContext";
 import useBindBuffer from "./useBindBuffer";
 import useVao from "./useVao";
 
-import "../math/mat4";
 import { WegGLMatrix4, WegGLVector3 } from "./types";
 
 import getWebglContext, { WEBGL2 } from "./getWebglContext";
 export { getWebglContext, WEBGL2 };
 
 type Camera = {
-  matrix: number[];
+  matrix: Mat4;
   rotate: number;
 };
 export function createCamera(rotate: number): Camera {
@@ -120,8 +120,7 @@ function useWebGL(gl: WebGL2RenderingContext) {
       const modelViewMatrix = mat4.create(),
         normalMatrix = mat4.create();
 
-      // We will discuss these operations in later chapters
-      mat4.perspective(
+      mat4.perspectiveNO(
         camera.matrix,
         radian(camera.rotate),
         aspectRacio(screen),
